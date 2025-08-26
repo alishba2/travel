@@ -1,0 +1,36 @@
+{
+	"compilerOptions": {
+		"target": "es5",
+		"lib": ["dom", "dom.iterable", "esnext"],
+		"allowJs": true,
+		"skipLibCheck": true,
+		"esModuleInterop": true,
+		"allowSyntheticDefaultImports": true,
+		"strict": true,
+		"forceConsistentCasingInFileNames": true,
+		"noFallthroughCasesInSwitch": true,
+		"module": "CommonJS",
+		// "module": "esnext",
+		"moduleResolution": "node",
+		"resolveJsonModule": true,
+		"isolatedModules": true,
+		"noEmit": true,
+		"jsx": "react-jsx",
+		"types": ["node"], // process.env를 사용할 수 있도록.
+		"sourceMap": true,
+		"typeRoots": ["./typings", "./node_modules/@types"],
+		"baseUrl": "./src",
+		"outDir": "./dist",
+		"paths": {
+			"@components/*": ["components/*"],
+			"@icons/*": ["icons/*"],
+			"@hooks/*": ["hooks/*"],
+			"@pages/*": ["pages/*"],
+			"@shared/*": ["shared/*"],
+			"@styles/*": ["styles/*"],
+			"@typings/*": ["typings/*"],
+			"@layouts/*": ["layouts/*"]
+		}
+	},
+	"include": ["src"]
+}

@@ -1,0 +1,86 @@
+{
+	"parser": "@typescript-eslint/parser",
+
+	"plugins": ["react", "@typescript-eslint", "prettier"],
+
+	"extends": [
+		"airbnb",
+		"airbnb/hooks",
+		"eslint:recommended",
+		"plugin:react/recommended",
+		"plugin:import/errors",
+		"plugin:import/warnings",
+		"plugin:import/typescript",
+		"plugin:@typescript-eslint/recommended",
+		"prettier/@typescript-eslint",
+		//! NOTE 접근성 필요한 곳에서만 켜기
+		"plugin:jsx-a11y/recommended",
+		"plugin:prettier/recommended" // NOTE 무조건 맨 뒤에
+	],
+	"parserOptions": {
+		"ecmaFeatures": {
+			"jsx": true
+		},
+		"ecmaVersion": 12,
+		"sourceType": "module"
+	},
+	"env": {
+		"browser": true,
+		"node": true,
+		"es2021": true
+	},
+	"rules": {
+		"indent": "off",
+		"react/jsx-indent": "off",
+		"react/jsx-indent-props": "off",
+		"react/tsx-indent": "off",
+		"react/jsx-pascal-case": "off",
+		"react/jsx-curly-newline": "off",
+		"react/jsx-props-no-spreading": "off",
+		"react/jsx-one-expression-per-line": "off",
+		"no-use-before-define": "off",
+		// "@typescript-eslint/no-use-before-define": ["error"],
+		"react/jsx-filename-extension": [1, { "extensions": [".js", ".jsx", ".ts", ".tsx", ".json"] }],
+		"import/extensions": [
+			"error",
+			"ignorePackages",
+			{ "js": "never", "jsx": "never", "ts": "never", "tsx": "never", "json": "never" }
+		],
+		"no-console": 0,
+		"@typescript-eslint/no-empty-function": 0,
+		"import/prefer-default-export": 0,
+		"react/prop-types": 0,
+		"camelcase": 0,
+		"import/order": 0,
+		//! NOTE 접근성 중요한 곳에서는 jsx-a11y rule 끄지 않기.
+		// "jsx-a11y/label-has-associated-control": 0,
+		// "jsx-a11y/click-events-have-key-events": 0,
+		// "jsx-a11y/no-noninteractive-element-interactions": 0,
+		// "jsx-a11y/no-static-element-interactions": 0,
+		// "jsx-a11y/alt-text": 0,
+		"react/require-default-props": 0,
+		"react/jsx-curly-newline ": 0,
+		"react-hooks/exhaustive-deps": 0,
+		"react/no-array-index-key": 0,
+		"prettier/prettier": [
+			"error",
+			{
+				"endOfLine": "auto"
+			}
+		]
+	},
+	"settings": {
+		"react": {
+			"version": "detect"
+		},
+
+		"import/resolver": {
+			"node": {
+				"extensions": [".js", ".jsx", ".ts", ".tsx", ".json"],
+				"paths": ["./src"]
+				// "moduleDirectory": ["node_modules", "."],
+			},
+			"typescript": {}
+		}
+	}
+}

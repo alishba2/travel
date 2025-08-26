@@ -1,0 +1,15 @@
+# Modules
+node_modules/
+.yarn
+.yarn/
+
+# Build Bundles
+dist/
+
+# env
+/vars
+.env
+# .env.dev
+# .env.stg
+# .env.prod
+# .env.local

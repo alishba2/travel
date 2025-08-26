@@ -1,0 +1,52 @@
+/* Big Play Button */
+/* Play 색상 변경 */
+.video-js .vjs-big-play-button .vjs-icon-placeholder:before {
+	color: #fff;
+}
+
+/* Control bar */
+/* 컨트롤 바 > 타임 */
+.video-js .vjs-time-control > span {
+	color: #fff;
+}
+
+/* 컨트롤 바 > 아이콘 색상 */
+.vjs-button > .vjs-icon-placeholder:before {
+	color: #fff;
+}
+
+/* Progress Bar */
+/* 프로그래스바 활성화 */
+.video-js .vjs-play-progress {
+	background-color: #ffaa00;
+}
+
+/* 프로그래스바 비활성화 */
+.video-js .vjs-slider {
+	background-color: #999999;
+}
+
+/* 프로그래스바 프리로드 */
+.video-js .vjs-load-progress {
+	visibility: hidden;
+}
+
+/* 프로그래스바 포인터 */
+.video-js .vjs-play-progress:before {
+	display: none;
+}
+
+/* Volume Bar */
+/* 볼륨 포인터 */
+.vjs-slider-horizontal .vjs-volume-level:before {
+	display: none;
+}
+
+.video-js .vjs-progress-control {
+	/* TODO : 플레이어 테스트 */
+	/* pointer-events: none; */
+}
+
+.video-js.vjs-layout-small .vjs-remaining-time {
+	display: block !important;
+}
