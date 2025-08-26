@@ -146,7 +146,7 @@ export const createLinkAndCopy = async (id: number) => {
 	try {
 		const hash = aesEncrypt(id.toString());
 		const encoding = encodeURIComponent(hash);
-		const link = `http://localhost:3000/quotation/${encoding}`;
+		const link = `https://tumakr.com/quotation/${encoding}`;
 
 		window.open(link);
 
