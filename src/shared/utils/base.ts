@@ -146,7 +146,7 @@ export const createLinkAndCopy = async (id: number) => {
 	try {
 		const hash = aesEncrypt(id.toString());
 		const encoding = encodeURIComponent(hash);
-		const link = `https://tumakr.com/quotation/${encoding}`;
+		const link = `https://travel-2-chi.vercel.app/quotation/${encoding}`;
 
 		window.open(link);
 
