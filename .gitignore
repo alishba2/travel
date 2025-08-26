@@ -8,7 +8,7 @@ dist/
 
 # env
 /vars
-.env
+
 # .env.dev
 # .env.stg
 # .env.prod
