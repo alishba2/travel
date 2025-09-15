@@ -139,6 +139,7 @@ const MyEstimateDetail: FC = () => {
 	const watchOfficeHours = batchWatch('officeHours');
 	const watchOfficeNumber = batchWatch('officeNumber');
 	const watchEmergencyNumber = batchWatch('emergencyNumber');
+	const queryClient = useQueryClient();
 
 	const [itemGroups, setItemGroups] = useState<ItemGroups>({
 		[CART_KEY]: [], // 장바구니
@@ -157,7 +158,10 @@ const MyEstimateDetail: FC = () => {
 	const [headcount, setHeadcount] = useState<number>(0);
 	const [enableHeadcount, setEnableHeadcount] = useState(true);
 
+	const [totalPrice, setTotalPrice] = useState<number>(0);
+
 	const [selectedItemList, setSelectedItemList] = useState<SelectedEstimateItemType[]>([]);
+	const [isInitialDataLoad, setIsInitialDataLoad] = useState(false);
 
 	const [searchItemId, setSearchItemId] = useState<number>(0);
 	const [editItemId, setEditItemId] = useState<number>();
@@ -173,12 +177,10 @@ const MyEstimateDetail: FC = () => {
 		}, 300),
 	).current;
 
-
-	useEffect(()=>{
-
+	useEffect(() => {
 		console.log(selectedItemList, "selected item list is here");
+	}, [selectedItemList])
 
-	},[selectedItemList])
 	/**
 	 * Queries
 	 */
@@ -304,26 +306,30 @@ const MyEstimateDetail: FC = () => {
 		throttleSearch(watchKeyword, managerGrade);
 	}, [watchKeyword]);
 
-	useEffect(() => {
-		const total = sum([watchAdultsCount, watchChildrenCount].map(Number));
-		setHeadcount(total);
+	// useEffect(() => {
+	// 	const total = sum([watchAdultsCount, watchChildrenCount].map(Number));
+	// 	setHeadcount(total);
 
-		if (enableHeadcount) {
-			setSelectedItemList((prev) =>
-				prev.map((o) => ({
-					...o,
-					quantity: o.itemType === '여행지' ? total : o.quantity,
-					price: o.itemType === '여행지' ? String(Number(whatTheBest(o.pricePolicy, total)) * total) : o.price,
-				})),
-			);
-		}
-	}, [watchAdultsCount, watchChildrenCount, enableHeadcount]);
+	// 	if (enableHeadcount && !isInitialDataLoad) {
+	// 		setSelectedItemList((prev) =>
+	// 			prev.map((o) => ({
+	// 				...o,
+	// 				quantity: o.itemType === '여행지' ? total : o.quantity,
+	// 				price: o.itemType === '여행지' ? String(Number(whatTheBest(o.pricePolicy, total)) * total) : o.price,
+	// 			})),
+	// 		);
+	// 		console.log('useEffect headcount', total, selectedItemList);
+	// 	}
+	// }, [watchAdultsCount, watchChildrenCount, enableHeadcount, isInitialDataLoad]);
 
 	useEffect(() => {
 		if (!estimateDetails?.length) {
 			return;
 		}
 
+
+		console.log(estimateDetails, "estimated Details aer here");
+		setIsInitialDataLoad(true);
 		const convertList: SelectedEstimateItemType[] = estimateDetails.map((o) => {
 			const { days, item, estimateId, id: estimateDetailId, quantity, price, sequence, enableContent } = o;
 
@@ -331,11 +337,11 @@ const MyEstimateDetail: FC = () => {
 			const pricePolicy = !item.pricePolicy
 				? { 1: item.price?.toString() } // { 1 : 원래Price }
 				: convertPricePolicy.reduce((acc: any, cur: any, idx: number) => {
-						return {
-							...acc,
-							[idx + 1]: Number(cur),
-						};
-				  }, {});
+					return {
+						...acc,
+						[idx + 1]: Number(cur),
+					};
+				}, {});
 
 			const getThumbnailImg = item?.files?.find((img) => img.type === '썸네일');
 
@@ -367,6 +373,7 @@ const MyEstimateDetail: FC = () => {
 		const convertGroupItem = { [CART_KEY]: [], ...convertDate };
 
 		setItemGroups(convertGroupItem);
+		console.log(convertList, "convert list is here");
 		setSelectedItemList(convertList);
 
 		if (estimateInfo?.comment) {
@@ -382,7 +389,31 @@ const MyEstimateDetail: FC = () => {
 				return { ...prev, [idx + 1]: text };
 			});
 		});
+
+		// Reset the flag after a short delay
+		setTimeout(() => {
+			setIsInitialDataLoad(false);
+		}, 100);
 	}, [estimateDetails]);
+
+	// Calculate total price whenever selectedItemList or itemGroups change
+	useEffect(() => {
+		const omitCart = omit(itemGroups, CART_KEY);
+		const flat = Object.values(omitCart).flat();
+
+		const calculatedTotalPrice = selectedItemList.reduce((acc, cur) => {
+			const isIncludes = flat.includes(cur.sequence);
+			const targetPrice = isIncludes ? Number(cur.price || cur.originPrice) : 0;
+			return acc + targetPrice;
+		}, 0);
+
+		setTotalPrice(calculatedTotalPrice);
+		console.log('Total price updated:', calculatedTotalPrice);
+	}, [selectedItemList, itemGroups]);
+
+	useEffect(() => {
+		console.log(selectedItemList, "selectedItemList");
+	}, [selectedItemList])
 
 	const onClickSearchResult = (result: string, itemId: number) => {
 		setValue('keyword', result);
@@ -395,6 +426,7 @@ const MyEstimateDetail: FC = () => {
 
 		editBatchInfo();
 	};
+
 	const editBatchInfo = () => {
 		if (!id) return;
 
@@ -447,11 +479,11 @@ const MyEstimateDetail: FC = () => {
 		const pricePolicy = !target.pricePolicy
 			? { 1: target.price?.toString() } // { 1 : 원래Price }
 			: convertPricePolicy.reduce((acc: any, cur: any, idx: number) => {
-					return {
-						...acc,
-						[idx + 1]: Number(cur),
-					};
-			  }, {});
+				return {
+					...acc,
+					[idx + 1]: Number(cur),
+				};
+			}, {});
 
 		const originPrice = target.pricePolicy ? String(whatTheBest(pricePolicy, headcount)) : target.price?.toString();
 
@@ -516,9 +548,6 @@ const MyEstimateDetail: FC = () => {
 			// 새로운 숫자 키 추가
 			const newState = { ...itemGroups, [maxNumber + 1]: [] };
 
-			// 상태 업데이트
-
-
 			setItemGroups(newState);
 			successToast('Added successfully.');
 		}
@@ -559,11 +588,6 @@ const MyEstimateDetail: FC = () => {
 		editBatchInfo();
 
 		const transformInputData = Object.keys(itemGroups).reduce((acc: PostMyEstimateDetailItem[], day: string) => {
-			// if (day === CART_KEY) {
-			// 	console.log(acc);
-			// 	return acc;
-			// }
-
 			const result = itemGroups[day].map((seq: number, index: number) => {
 				const item = selectedItemList.find((o) => o.sequence === seq);
 				return {
@@ -594,6 +618,7 @@ const MyEstimateDetail: FC = () => {
 		postEstimateDetailBulk(payload, {
 			onSuccess: () => {
 				refetch();
+
 				successToast('Saved successfully.');
 			},
 			onError: () => {
@@ -633,19 +658,6 @@ const MyEstimateDetail: FC = () => {
 				});
 			},
 		});
-	};
-
-	const handleTotalPrice = () => {
-		const omitCart = omit(itemGroups, CART_KEY);
-		const flat = Object.values(omitCart).flat();
-
-		const totalPrice = selectedItemList.reduce((acc, cur) => {
-			const isIncludes = flat.includes(cur.sequence);
-			const targetPrice = isIncludes ? Number(cur.price || cur.originPrice) : 0;
-			return acc + targetPrice;
-		}, 0);
-
-		return totalPrice;
 	};
 
 	const handleDetailExcelDownload = async () => {
@@ -785,20 +797,8 @@ const MyEstimateDetail: FC = () => {
 							/>
 						</Free.Value>
 					</Free.Row>
-					{/* <Free.Row>
-						<Free.Value>
-							<CheckBox
-								isChecked={enableHeadcount}
-								checkHandler={() => {
-									setEnableHeadcount((prev) => !prev);
-								}}
-								label="Headcount Synchronization"
-							/>
-						</Free.Value>
-					</Free.Row> */}
 					<Free.Row>
 						<Free.Value $width={100 / 8}>
-							{/* <Select label="Adults" name="adultsCount" values={COUNT} register={batchRegister} /> */}
 							<TextField
 								label="Adults"
 								name="adultsCount"
@@ -871,24 +871,6 @@ const MyEstimateDetail: FC = () => {
 								/>
 							</RadioWrapper>
 						</Free.Value>
-						{/* <Free.Value $width={33}>
-							<RadioWrapper label="Contents">
-								<Radio
-									name="Contents"
-									label="Show"
-									register={batchRegister}
-									value="show"
-									checked={watchOnlyPlace === 'show'}
-								/>
-								<Radio
-									name="Contents"
-									label="Hide"
-									register={batchRegister}
-									value="hide"
-									checked={watchOnlyPlace === 'hide'}
-								/>
-							</RadioWrapper>
-						</Free.Value> */}
 					</Free.Row>
 
 					<Free.Row>
@@ -947,10 +929,6 @@ const MyEstimateDetail: FC = () => {
 							/>
 						</Free.Value>
 					</Free.Row>
-
-					{/* <ButtonBox>
-						<Button type="submit" status="primary" text="Edit" />
-					</ButtonBox> */}
 				</Free.SearchTable>
 
 				<Blank size={24} />
@@ -1020,8 +998,8 @@ const MyEstimateDetail: FC = () => {
 				</ButtonBox>
 
 				<S.totalPrice>
-					{`Total Price : $${comma(handleTotalPrice())} ($${
-						headcount ? comma(Math.round(handleTotalPrice() / headcount)) : ''
+					{`Total Price : ${comma(totalPrice)} (${
+						headcount ? comma(Math.round(totalPrice / headcount)) : ''
 					} / Person)\nTotal Pax : ${headcount}`}
 				</S.totalPrice>
 
@@ -1064,29 +1042,11 @@ const MyEstimateDetail: FC = () => {
 							})}
 						</article>
 					</section>
-					{/* <div>
-						<TextArea
-							name="comment"
-							label="Comment"
-							placeholder="Please enter the comment."
-							height={100}
-							value={comment}
-							onChange={(e) => {
-								setComment(e.target.value);
-							}}
-						/>
-					</div> */}
 
 					<Blank size={40} />
 
 					<TextEditer editorState={editorState} setEditorState={setEditorState} />
-
-					{/* <ButtonBox>
-						<Button type="button" status="primary" text="Save" onClick={handleSend} />
-					</ButtonBox> */}
 				</S.MemoSection>
-
-				{/*  */}
 
 				<Loader isFetching={isLoading || postIsLoading} />
 			</S.Container>
