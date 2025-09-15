@@ -139,7 +139,6 @@ const MyEstimateDetail: FC = () => {
 	const watchOfficeHours = batchWatch('officeHours');
 	const watchOfficeNumber = batchWatch('officeNumber');
 	const watchEmergencyNumber = batchWatch('emergencyNumber');
-	const queryClient = useQueryClient();
 
 	const [itemGroups, setItemGroups] = useState<ItemGroups>({
 		[CART_KEY]: [], // 장바구니
